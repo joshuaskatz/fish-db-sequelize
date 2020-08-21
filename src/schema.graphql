@@ -1,14 +1,24 @@
 type Query {
-	user(query: String): [User]!
+	user(query: String, limit: Int, offset: Int): [User]!
 	me: User!
-	profile(query: String): [Profile!]!
-	trip(query: String): [Trip!]!
-	myTrips: [Trip!]!
-	river(query: String): [River!]!
-	tackle(query: String): [Tackle!]!
-	myTackle: [Tackle!]!
-	fish(query: String): [Fish!]!
-	flies(query: String): [Flies!]!
+	profile(
+		query: String
+		limit: Int
+		offset: Int
+		orderBy: String
+	): [Profile!]!
+	trip(query: String, limit: Int, offset: Int, orderBy: String): [Trip!]!
+	myTrips(query: String, limit: Int, offset: Int, orderBy: String): [Trip!]!
+	river(query: String, limit: Int, offset: Int, orderBy: String): [River!]!
+	tackle(query: String, limit: Int, offset: Int, orderBy: String): [Tackle!]!
+	myTackle(
+		query: String
+		limit: Int
+		offset: Int
+		orderBy: String
+	): [Tackle!]!
+	fish(query: String, limit: Int, offset: Int, orderBy: String): [Fish!]!
+	flies(query: String, limit: Int, offset: Int, orderBy: String): [Flies!]!
 }
 
 type Mutation {

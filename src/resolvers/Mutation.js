@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import moment from 'moment';
 
 import hashPassword from '../utils/hashPassword';
 import generateToken from '../utils/generateToken';
@@ -699,6 +700,7 @@ export const Mutation = {
 				});
 			});
 		}
+
 		if (flies) {
 			flies.forEach(async (flyId) => {
 				await models.TripFly.destroy({ where: { tripId: id } });

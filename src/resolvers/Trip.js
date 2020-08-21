@@ -1,8 +1,6 @@
 export const Trip = {
 	author: async (parent, args, { loaders }) => {
-		const usersPromise = await loaders.users.load(parent.userId);
-
-		return usersPromise;
+		return loaders.users.load(parent.userId);
 	},
 	river: async (parent, args, { loaders }) => {
 		return loaders.river.load(parent.riverId);

@@ -1,38 +1,127 @@
+import { Op } from 'sequelize';
+
 import getUserId from '../utils/getUserId';
 
 export const Query = {
-	fish: (parent, args, { models }) => {
-		return models.Fish.findAll();
+	fish: (_, { query = '', limit, offset, orderBy = 'ASC' }, { models }) => {
+		return models.Fish.findAll({
+			where: { species: { [Op.iLike]: `%${query}%` } },
+			limit,
+			offset,
+			order: [ [ 'species', orderBy ] ]
+		});
 	},
-	flies: (parent, args, { models }) => {
-		return models.Fly.findAll();
+	flies: (_, { query = '', limit, offset, orderBy = 'ASC' }, { models }) => {
+		return models.Fly.findAll({
+			where: {
+				[Op.or]: [
+					{ name: { [Op.iLike]: `%${query}%` } },
+					{ color: { [Op.iLike]: `%${query}%` } },
+					{ type: { [Op.iLike]: `%${query}%` } }
+				]
+			},
+			limit,
+			offset,
+			order: [ [ 'name', orderBy ] ]
+		});
 	},
-	profile: async (parent, args, { models }) => {
-		return models.Profile.findAll();
+	profile: async (_, { query = '', limit, offset }, { models }) => {
+		return models.Profile.findAll({
+			where: { location: { [Op.iLike]: `%${query}%` } },
+			limit,
+			offset
+		});
 	},
-	river: (parent, args, { models }) => {
-		return models.River.findAll();
+	river: (_, { query = '', limit, offset, orderBy = 'ASC' }, { models }) => {
+		return models.River.findAll({
+			where: {
+				[Op.or]: [
+					{ name: { [Op.iLike]: `%${query}%` } },
+					{ regulation: { [Op.iLike]: `%${query}%` } },
+					{ size: { [Op.iLike]: `%${query}%` } }
+				]
+			},
+			limit,
+			offset,
+			order: [ [ 'name', orderBy ] ]
+		});
 	},
-	tackle: async (parent, args, { models }) => {
-		return models.Tackle.findAll();
+	tackle: async (
+		_,
+		{ query = '', limit, offset, orderBy = 'ASC' },
+		{ models }
+	) => {
+		return models.Tackle.findAll({
+			where: {
+				[Op.or]: [
+					{ rod_name: { [Op.iLike]: `%${query}%` } },
+					{ rod_weight: { [Op.iLike]: `%${query}%` } }
+				]
+			},
+			limit,
+			offset,
+			order: [ [ 'rod_name', orderBy ] ]
+		});
 	},
-	myTackle: async (parent, args, { models, request }) => {
+	myTackle: async (
+		_,
+		{ query = '', limit, offset, orderBy = 'ASC' },
+		{ models, request }
+	) => {
 		const userId = getUserId(request);
 
-		return models.Tackle.findAll({ where: { userId } });
+		return models.Tackle.findAll({
+			where: {
+				userId,
+				[Op.or]: [
+					{ rod_name: { [Op.iLike]: `%${query}%` } },
+					{ rod_weight: { [Op.iLike]: `%${query}%` } }
+				]
+			},
+			limit,
+			offset,
+			order: [ [ 'rod_name', orderBy ] ]
+		});
 	},
-	trip: (parent, args, { models }) => {
-		return models.Trip.findAll();
+	trip: (_, { limit, offset, orderBy = 'ASC' }, { models }) => {
+		return models.Trip.findAll({
+			limit,
+			offset,
+			order: [ [ 'date', orderBy ] ]
+		});
 	},
-	myTrips: async (parent, args, { models, request }) => {
+	myTrips: async (
+		_,
+		{ limit, offset, orderBy = 'ASC' },
+		{ models, request }
+	) => {
 		const userId = getUserId(request);
 
-		return models.Trip.findAll({ where: { userId } });
+		return models.Trip.findAll({
+			where: { userId },
+			limit,
+			offset,
+			order: [ [ 'date', orderBy ] ]
+		});
 	},
-	user: async (parent, args, { models }) => {
-		return models.User.findAll();
+	user: async (
+		_,
+		{ query = '', limit, offset, orderBy = 'ASC' },
+		{ models }
+	) => {
+		return models.User.findAll({
+			where: {
+				[Op.or]: [
+					{ name: { [Op.iLike]: `%${query}%` } },
+					{ email: { [Op.iLike]: `%${query}%` } }
+				]
+			},
+			limit,
+			offset,
+			order: [ [ 'date', orderBy ] ]
+		});
 	},
-	me: async (parent, args, { models, request }) => {
+	me: async (_, __, { models, request }) => {
 		const id = getUserId(request);
 
 		return models.User.findByPk(id);
