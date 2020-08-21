@@ -1,5 +1,8 @@
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
+import { PubSub } from 'graphql-subscriptions';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
+import { createServer } from 'http';
 import bodyparser from 'body-parser';
 import { importSchema } from 'graphql-import';
 
@@ -11,14 +14,20 @@ const typeDefs = importSchema('./src/schema.graphql');
 
 const app = express();
 
+const pubsub = new PubSub();
+
 const server = new ApolloServer({
 	typeDefs,
 	resolvers,
+	subscriptions: {
+		onConnect: () => console.log('Connected to websocket')
+	},
 	context: async ({ req }) => {
 		return {
 			models,
 			request: req,
-			loaders
+			loaders,
+			pubsub
 		};
 	}
 });
@@ -31,8 +40,11 @@ server.applyMiddleware({
 	})
 });
 
+const httpServer = createServer(app);
+server.installSubscriptionHandlers(httpServer);
+
 models.sequelize.sync().then(() => {
-	app.listen({ port: 8080 }, () =>
+	httpServer.listen({ port: 8080 }, () =>
 		console.log(`Server live at http://localhost:8080${server.graphqlPath}`)
 	);
 });

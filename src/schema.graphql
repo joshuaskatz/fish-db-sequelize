@@ -36,6 +36,57 @@ type Mutation {
 	delete_fly(id: ID!): Flies!
 }
 
+type Subscription {
+	fish: FishSubPayload!
+	fly: FlySubPayload!
+	profile: ProfileSubPayload!
+	user: UserSubPayload!
+	river: RiverSubPayload!
+	tackle: TackleSubPayload!
+	trip: TripSubPayload!
+}
+
+enum MutationType {
+	CREATED
+	UPDATED
+	DELETED
+}
+
+type FishSubPayload {
+	mutation: MutationType!
+	data: Fish
+}
+
+type FlySubPayload {
+	mutation: MutationType!
+	data: Flies
+}
+
+type ProfileSubPayload {
+	mutation: MutationType!
+	data: Profile
+}
+
+type UserSubPayload {
+	mutation: MutationType!
+	data: User
+}
+
+type RiverSubPayload {
+	mutation: MutationType!
+	data: River
+}
+
+type TackleSubPayload {
+	mutation: MutationType!
+	data: Tackle
+}
+
+type TripSubPayload {
+	mutation: MutationType!
+	data: Trip
+}
+
 input SignupInput {
 	name: String!
 	email: String!

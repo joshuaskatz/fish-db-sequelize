@@ -6,18 +6,27 @@ import getUserId from '../utils/getUserId';
 import { toTitleCase } from '../utils/toTitleCase';
 
 export const Mutation = {
-	signup: async (_, { data }, { models }) => {
+	signup: async (_, { data }, { models, pubsub }) => {
 		const { name, email } = data;
 
 		const password = await hashPassword(data.password);
 
-		return models.User.create({
+		const user = await models.User.create({
 			name: toTitleCase(name),
 			email,
 			password
 		});
+
+		await pubsub.publish('user', {
+			user: {
+				mutation: 'CREATED',
+				data: user
+			}
+		});
+
+		return user;
 	},
-	update_user: async (_, { data }, { models, request }) => {
+	update_user: async (_, { data }, { models, request, pubsub }) => {
 		const id = getUserId(request);
 
 		const userExists = await models.User.findOne({ where: { id } });
@@ -36,9 +45,18 @@ export const Mutation = {
 
 		await models.User.update({ name, email }, { where: { id } });
 
-		return models.User.findOne({ where: { id } });
+		const user = await models.User.findOne({ where: { id } });
+
+		await pubsub.publish('user', {
+			user: {
+				mutation: 'UPDATED',
+				data: user
+			}
+		});
+
+		return user;
 	},
-	delete_user: async (_, args, { models, request }) => {
+	delete_user: async (_, __, { models, request, pubsub }) => {
 		const id = getUserId(request);
 
 		const userExists = await models.User.findOne({ where: { id } });
@@ -48,6 +66,13 @@ export const Mutation = {
 		}
 
 		await userExists.destroy();
+
+		await pubsub.publish('user', {
+			user: {
+				mutation: 'DELETED',
+				data: userExists
+			}
+		});
 
 		return userExists;
 	},
@@ -73,7 +98,7 @@ export const Mutation = {
 			token: generateToken(user.id)
 		};
 	},
-	create_profile: async (_, { data }, { models, request }) => {
+	create_profile: async (_, { data }, { models, request, pubsub }) => {
 		const userId = getUserId(request);
 
 		const profileExists = await models.Profile.findOne({
@@ -86,13 +111,22 @@ export const Mutation = {
 
 		const { bio, location } = data;
 
-		return models.Profile.create({
+		const profile = await models.Profile.create({
 			bio,
 			location,
 			userId
 		});
+
+		await pubsub.publish('profile', {
+			profile: {
+				mutation: 'CREATED',
+				data: profile
+			}
+		});
+
+		return profile;
 	},
-	update_profile: async (_, { data }, { models, request }, info) => {
+	update_profile: async (_, { data }, { models, request, pubsub }) => {
 		const userId = getUserId(request);
 
 		const profileExists = await models.Profile.findOne({
@@ -113,9 +147,18 @@ export const Mutation = {
 			{ where: { userId } }
 		);
 
-		return models.Profile.findOne({ where: { userId } });
+		const profile = await models.Profile.findOne({ where: { userId } });
+
+		await pubsub.publish('profile', {
+			profile: {
+				mutation: 'UPDATED',
+				data: profile
+			}
+		});
+
+		return profile;
 	},
-	delete_profile: async (_, args, { models, request }) => {
+	delete_profile: async (_, __, { models, request, pubsub }) => {
 		const userId = getUserId(request);
 
 		const profileExists = await models.Profile.findOne({
@@ -128,9 +171,16 @@ export const Mutation = {
 
 		await profileExists.destroy();
 
+		await pubsub.publish('profile', {
+			profile: {
+				mutation: 'DELETED',
+				data: profileExists
+			}
+		});
+
 		return profileExists;
 	},
-	create_fish: async (_, { data }, { models, request }) => {
+	create_fish: async (_, { data }, { models, request, pubsub }) => {
 		getUserId(request);
 
 		const species = toTitleCase(data.species);
@@ -143,9 +193,18 @@ export const Mutation = {
 			throw new Error('Fish already exists!');
 		}
 
-		return models.Fish.create({ species });
+		const fish = await models.Fish.create({ species });
+
+		await pubsub.publish('fish', {
+			fish: {
+				mutation: 'CREATED',
+				data: fish
+			}
+		});
+
+		return fish;
 	},
-	update_fish: async (_, { data, id }, { models, request }) => {
+	update_fish: async (_, { data, id }, { models, request, pubsub }) => {
 		getUserId(request);
 
 		const species = toTitleCase(data.species);
@@ -160,9 +219,18 @@ export const Mutation = {
 
 		await models.Fish.update({ species }, { where: { id } });
 
-		return models.Fish.findOne({ where: { id } });
+		const fish = await models.Fish.findOne({ where: { id } });
+
+		await pubsub.publish('fish', {
+			fish: {
+				mutation: 'UPDATED',
+				data: fish
+			}
+		});
+
+		return fish;
 	},
-	delete_fish: async (_, { id }, { models, request }) => {
+	delete_fish: async (_, { id }, { models, request, pubsub }) => {
 		getUserId(request);
 
 		const fishExists = await models.Fish.findOne({ where: { id } });
@@ -175,9 +243,16 @@ export const Mutation = {
 
 		await fishExists.destroy();
 
+		await pubsub.publish('fish', {
+			fish: {
+				mutation: 'DELETED',
+				data: fishExists
+			}
+		});
+
 		return fishExists;
 	},
-	create_fly: async (_, { data }, { models, request }) => {
+	create_fly: async (_, { data }, { models, request, pubsub }) => {
 		getUserId(request);
 
 		const { type, name, color } = data;
@@ -194,13 +269,22 @@ export const Mutation = {
 			throw new Error('Fly already exists! Care to add a new one?');
 		}
 
-		return models.Fly.create({
+		const fly = await models.Fly.create({
 			type: toTitleCase(type),
 			name: toTitleCase(name),
 			color: toTitleCase(color)
 		});
+
+		await pubsub.publish('fly', {
+			fly: {
+				mutation: 'CREATED',
+				data: fly
+			}
+		});
+
+		return fly;
 	},
-	update_fly: async (_, { data, id }, { models, request }) => {
+	update_fly: async (_, { data, id }, { models, request, pubsub }) => {
 		getUserId(request);
 
 		const flyExists = await models.Fly.findOne({ where: { id } });
@@ -222,9 +306,18 @@ export const Mutation = {
 			{ where: { id } }
 		);
 
-		return models.Fly.findOne({ where: { id } });
+		const fly = await models.Fly.findOne({ where: { id } });
+
+		await pubsub.publish('fly', {
+			fly: {
+				mutation: 'UPDATED',
+				data: fly
+			}
+		});
+
+		return fly;
 	},
-	delete_fly: async (_, { id }, { models, request }) => {
+	delete_fly: async (_, { id }, { models, request, pubsub }) => {
 		getUserId(request);
 
 		const flyExists = await models.Fly.findOne({ where: { id } });
@@ -237,9 +330,16 @@ export const Mutation = {
 
 		await flyExists.destroy();
 
+		await pubsub.publish('fly', {
+			fly: {
+				mutation: 'DELETED',
+				data: flyExists
+			}
+		});
+
 		return flyExists;
 	},
-	create_river: async (_, { data }, { models, request }) => {
+	create_river: async (_, { data }, { models, request, pubsub }) => {
 		getUserId(request);
 
 		const {
@@ -281,9 +381,20 @@ export const Mutation = {
 			});
 		});
 
-		return riverPromise;
+		const populatedRiver = await models.River.findOne({
+			where: { id: river.id }
+		});
+
+		await pubsub.publish('river', {
+			river: {
+				mutation: 'CREATED',
+				data: populatedRiver
+			}
+		});
+
+		return populatedRiver;
 	},
-	update_river: async (_, { data, id }, { models, request }) => {
+	update_river: async (_, { data, id }, { models, request, pubsub }) => {
 		getUserId(request);
 
 		const riverExists = await models.River.findOne({ where: { id } });
@@ -355,9 +466,20 @@ export const Mutation = {
 				});
 			});
 		}
+
+		const river = await models.River.findOne({ where: { id } });
+
+		await pubsub.publish('river', {
+			river: {
+				mutation: 'UPDATED',
+				data: river
+			}
+		});
+
+		return river;
 	},
 
-	delete_river: async (_, { id }, { models, request }) => {
+	delete_river: async (_, { id }, { models, request, pubsub }) => {
 		getUserId(request);
 
 		const riverExists = await models.River.findOne({ where: { id } });
@@ -368,15 +490,22 @@ export const Mutation = {
 			);
 		}
 
-		await models.River.destroy({ where: { id } });
+		await riverExists.destroy({ where: { id } });
 
 		await models.RiverFish.destroy({ where: { riverId: id } });
 
 		await models.RiverFly.destroy({ where: { riverId: id } });
 
+		await pubsub.publish('river', {
+			river: {
+				mutation: 'DELETED',
+				data: riverExists
+			}
+		});
+
 		return riverExists;
 	},
-	create_tackle: async (_, { data }, { models, request }) => {
+	create_tackle: async (_, { data }, { models, request, pubsub }) => {
 		const userId = getUserId(request);
 
 		const { rod_name, rod_weight, rod_length_ft, rod_length_in } = data;
@@ -395,15 +524,24 @@ export const Mutation = {
 			throw new Error('Tackle already exists. Care to add another?');
 		}
 
-		return models.Tackle.create({
+		const tackle = await models.Tackle.create({
 			userId,
 			rod_name: toTitleCase(rod_name),
-			rod_weight: toTitleCase(rod_weight),
-			rod_length_ft: toTitleCase(rod_length_ft),
-			rod_length_in: toTitleCase(rod_length_in)
+			rod_weight: rod_weight,
+			rod_length_ft: rod_length_ft,
+			rod_length_in: rod_length_in
 		});
+
+		await pubsub.publish('tackle', {
+			tackle: {
+				mutation: 'CREATED',
+				data: tackle
+			}
+		});
+
+		return tackle;
 	},
-	update_tackle: async (_, { data, id }, { models, request }) => {
+	update_tackle: async (_, { data, id }, { models, request, pubsub }) => {
 		//Cannot update other users tackle
 		const userId = getUserId(request);
 
@@ -420,16 +558,25 @@ export const Mutation = {
 		await models.Tackle.update(
 			{
 				rod_name: toTitleCase(rod_name),
-				rod_weight: toTitleCase(rod_weight),
-				rod_length_ft: toTitleCase(rod_length_ft),
-				rod_length_in: toTitleCase(rod_length_in)
+				rod_weight,
+				rod_length_ft,
+				rod_length_in
 			},
 			{ where: { id } }
 		);
 
-		return models.Tackle.findOne({ where: { id, userId } });
+		const tackle = await models.Tackle.findOne({ where: { id, userId } });
+
+		await pubsub.publish('tackle', {
+			tackle: {
+				mutation: 'UPDATED',
+				data: tackle
+			}
+		});
+
+		return tackle;
 	},
-	delete_tackle: async (_, { id }, { models, request }) => {
+	delete_tackle: async (_, { id }, { models, request, pubsub }) => {
 		//Cannot delete other users tackle
 		const userId = getUserId(request);
 
@@ -443,9 +590,16 @@ export const Mutation = {
 
 		await tackleExists.destroy();
 
+		await pubsub.publish('tackle', {
+			tackle: {
+				mutation: 'DELETED',
+				data: tackleExists
+			}
+		});
+
 		return tackleExists;
 	},
-	create_trip: async (_, { data }, { models, request }) => {
+	create_trip: async (_, { data }, { models, request, pubsub }) => {
 		const userId = getUserId(request);
 
 		const {
@@ -493,9 +647,16 @@ export const Mutation = {
 			});
 		});
 
+		await pubsub.publish('trip', {
+			trip: {
+				mutation: 'CREATED',
+				data: tripPromise
+			}
+		});
+
 		return tripPromise;
 	},
-	update_trip: async (_, { data, id }, { models, request }) => {
+	update_trip: async (_, { data, id }, { models, request, pubsub }) => {
 		const userId = getUserId(request);
 
 		const tripExists = await models.Trip.findOne({ where: { id, userId } });
@@ -560,9 +721,20 @@ export const Mutation = {
 			});
 		}
 
-		return tripExists;
+		const populatedTrip = await models.Trip.findOne({
+			where: { id, userId }
+		});
+
+		await pubsub.publish('trip', {
+			trip: {
+				mutation: 'UPDATED',
+				data: populatedTrip
+			}
+		});
+
+		return populatedTrip;
 	},
-	delete_trip: async (_, { id }, { models, request }) => {
+	delete_trip: async (_, { id }, { models, request, pubsub }) => {
 		const userId = getUserId(request);
 
 		const tripExists = await models.Trip.findOne({ where: { id, userId } });
@@ -578,6 +750,13 @@ export const Mutation = {
 		await models.TripFly.destroy({ where: { tripId: id } });
 
 		await models.TripTackle.destroy({ where: { tripId: id } });
+
+		await pubsub.publish('trip', {
+			trip: {
+				mutation: 'DELETED',
+				data: tripExists
+			}
+		});
 
 		return tripExists;
 	}
