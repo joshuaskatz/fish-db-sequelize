@@ -36,6 +36,8 @@ const server = new ApolloServer({
 	}
 });
 
+app.use('/graphql', server);
+
 server.applyMiddleware({
 	app,
 	bodyParserConfig: bodyparser.json({
