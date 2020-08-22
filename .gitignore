@@ -1,3 +1,4 @@
-shema.sql
+schema.sql
 .env-cmdrc.json
 /node_modules
+/dist

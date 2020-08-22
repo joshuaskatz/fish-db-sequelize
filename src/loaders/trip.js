@@ -1,6 +1,6 @@
 const DataLoader = require('dataloader');
 
-import models from '../../models';
+import models from '../models';
 
 const batchTrips = async (ids) => {
 	const rows = await models.Trip.findAll({ where: { userId: ids } });

@@ -1,6 +1,6 @@
 const DataLoader = require('dataloader');
 
-import models from '../../models';
+import models from '../models';
 
 const batchTackle = async (ids) => {
 	const rows = await models.Tackle.findAll({ where: { userId: ids } });

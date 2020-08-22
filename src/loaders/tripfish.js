@@ -1,6 +1,6 @@
 import DataLoader from 'dataloader';
 
-import models from '../../models';
+import models from '../models';
 
 const batchTripFish = async (ids) => {
 	const tripFish = await models.TripFish.findAll({
