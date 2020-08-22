@@ -118,7 +118,7 @@ export const Query = {
 			},
 			limit,
 			offset,
-			order: [ [ 'date', orderBy ] ]
+			order: [ [ 'name', orderBy ] ]
 		});
 	},
 	me: async (_, __, { models, request }) => {
