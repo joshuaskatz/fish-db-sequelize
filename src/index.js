@@ -46,7 +46,7 @@ const httpServer = createServer(app);
 server.installSubscriptionHandlers(httpServer);
 
 models.sequelize.sync().then(() => {
-	httpServer.listen({ port: 8080 }, () =>
+	httpServer.listen({ port: process.env.PORT || 8080 }, () =>
 		console.log(`Server live at http://localhost:8080${server.graphqlPath}`)
 	);
 });
