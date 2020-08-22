@@ -14,6 +14,8 @@ import { loaders } from './loaders/index';
 
 const typeDefs = importSchema('./src/schema.graphql');
 
+const port = process.env.PORT || 8080;
+
 const app = express();
 
 const pubsub = new PubSub();
@@ -46,7 +48,7 @@ const httpServer = createServer(app);
 server.installSubscriptionHandlers(httpServer);
 
 models.sequelize.sync().then(() => {
-	httpServer.listen({ port: process.env.PORT || 8080 }, () =>
+	httpServer.listen({ port }, () =>
 		console.log(`Server live at http://localhost:8080${server.graphqlPath}`)
 	);
 });
