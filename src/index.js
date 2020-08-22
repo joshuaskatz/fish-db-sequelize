@@ -33,10 +33,9 @@ const server = new ApolloServer({
 			loaders,
 			pubsub
 		};
-	}
+	},
+	playground: true
 });
-
-app.use('/graphql', server);
 
 server.applyMiddleware({
 	app,
