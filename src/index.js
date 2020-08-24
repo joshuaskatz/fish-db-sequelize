@@ -24,7 +24,8 @@ const server = new ApolloServer({
 	typeDefs,
 	resolvers,
 	subscriptions: {
-		onConnect: () => console.log('Connected to websocket')
+		onConnect: () => console.log('Connected to websocket'),
+		path: '/subscriptions'
 	},
 	tracing: true,
 	context: async ({ req }) => {
