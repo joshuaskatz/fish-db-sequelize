@@ -281,7 +281,7 @@ type Tackle {
 
 type Fish {
 	id: ID!
-	species: String!
+	species: String
 }
 
 type Flies {
