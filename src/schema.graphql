@@ -65,37 +65,37 @@ enum MutationType {
 }
 
 type FishSubPayload {
-	mutation: MutationType!
+	mutation: MutationType
 	data: Fish
 }
 
 type FlySubPayload {
-	mutation: MutationType!
+	mutation: MutationType
 	data: Flies
 }
 
 type ProfileSubPayload {
-	mutation: MutationType!
+	mutation: MutationType
 	data: Profile
 }
 
 type UserSubPayload {
-	mutation: MutationType!
+	mutation: MutationType
 	data: User
 }
 
 type RiverSubPayload {
-	mutation: MutationType!
+	mutation: MutationType
 	data: River
 }
 
 type TackleSubPayload {
-	mutation: MutationType!
+	mutation: MutationType
 	data: Tackle
 }
 
 type TripSubPayload {
-	mutation: MutationType!
+	mutation: MutationType
 	data: Trip
 }
 
