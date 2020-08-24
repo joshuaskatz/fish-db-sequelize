@@ -26,6 +26,8 @@ type Mutation {
 	login(data: LoginInput!): LoginPayload!
 	update_user(data: UpdateUserInput!): User!
 	delete_user: User!
+	request_reset_password(email: String!): Boolean!
+	reset_password(data: ResetPasswordInput!): Boolean!
 	create_profile(data: CreateProfileInput!): Profile!
 	update_profile(data: UpdateProfileInput!): Profile!
 	delete_profile: Profile!
@@ -117,6 +119,12 @@ input LoginInput {
 type LoginPayload {
 	token: String!
 	user: User!
+}
+
+input ResetPasswordInput {
+	email: String!
+	password: String!
+	reset_token: String!
 }
 
 input UpdateUserInput {

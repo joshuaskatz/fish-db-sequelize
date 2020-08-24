@@ -1,10 +1,13 @@
 import bcrypt from 'bcryptjs';
-import moment from 'moment';
+import { randomBytes } from 'crypto';
+import { promisify } from 'util';
 
+import { mailClient } from '../utils/mailClient';
 import hashPassword from '../utils/hashPassword';
 import generateToken from '../utils/generateToken';
 import getUserId from '../utils/getUserId';
 import { toTitleCase } from '../utils/toTitleCase';
+import { Op } from 'sequelize';
 
 export const Mutation = {
 	signup: async (_, { data }, { models, pubsub }) => {
@@ -98,6 +101,77 @@ export const Mutation = {
 			user,
 			token: generateToken(user.id)
 		};
+	},
+	request_reset_password: async (_, { email }, { models }) => {
+		const user = await models.User.findAll({
+			where: {
+				email
+			}
+		});
+
+		if (!user) {
+			throw new Error('No user found with that email.');
+		}
+
+		const randomBytesAsync = promisify(randomBytes);
+		const reset_token = (await randomBytesAsync(20)).toString('hex');
+		const reset_token_expiry = Date.now() + 3600000;
+
+		await models.User.update(
+			{
+				reset_token,
+				reset_token_expiry
+			},
+			{
+				where: { email }
+			}
+		);
+
+		mailClient.send(
+			{
+				text: `Use the following token to reset your password: ${reset_token}`,
+				from: process.env.MAIL_USER,
+				to: email,
+				subject: 'Your Password Reset Token'
+			},
+			(err, message) => {
+				console.log(err || message);
+			}
+		);
+
+		return true;
+	},
+	reset_password: async (_, { data }, { models }) => {
+		const { email, reset_token } = data;
+
+		const password = await hashPassword(data.password);
+
+		const user = await models.User.findAll({
+			where: {
+				email,
+				reset_token,
+				reset_token_expiry: {
+					[Op.gte]: Date.now() - 3600000
+				}
+			}
+		});
+
+		if (!user) {
+			throw new Error('Password reset token is invalid or expired.');
+		}
+
+		await models.User.update(
+			{
+				password,
+				reset_token: null,
+				reset_token_expiry: null
+			},
+			{
+				where: { email }
+			}
+		);
+
+		return true;
 	},
 	create_profile: async (_, { data }, { models, request, pubsub }) => {
 		const userId = getUserId(request);
