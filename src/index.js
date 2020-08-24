@@ -26,6 +26,7 @@ const server = new ApolloServer({
 	subscriptions: {
 		onConnect: () => console.log('Connected to websocket')
 	},
+	tracing: true,
 	context: async ({ req }) => {
 		return {
 			models,
@@ -49,7 +50,9 @@ const httpServer = createServer(app);
 server.installSubscriptionHandlers(httpServer);
 
 models.sequelize.sync().then(() => {
-	httpServer.listen({ port }, () =>
-		console.log(`Server live at http://localhost:8080${server.graphqlPath}`)
-	);
+	httpServer.listen(port, () => {
+		console.log(
+			`🚀 Server ready at http://localhost:${port}${server.graphqlPath}`
+		);
+	});
 });
