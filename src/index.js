@@ -25,9 +25,10 @@ const server = new ApolloServer({
 	resolvers,
 	subscriptions: {
 		onConnect: () => console.log('Connected to websocket'),
+		onDisconnect: () => console.log('Disconnected.'),
 		path: '/subscriptions'
 	},
-	tracing: true,
+	tracing: process.env.NODE_ENV !== 'production',
 	context: async ({ req }) => {
 		return {
 			models,
