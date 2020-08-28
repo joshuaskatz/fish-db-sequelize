@@ -125,7 +125,8 @@ export const Query = {
 		const id = getUserId(request);
 
 		return models.User.findOne({
-			where: { id }
+			where: { id },
+			include: [ models.Profile ]
 		});
 	}
 };
