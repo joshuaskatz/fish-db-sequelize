@@ -125,8 +125,14 @@ export const Query = {
 		const id = getUserId(request);
 
 		return models.User.findOne({
-			where: { id },
-			include: [ models.Profile ]
+			where: { id }
+		});
+	},
+	myProfile: async (_, __, { models, request }) => {
+		const userId = getUserId(request);
+
+		return models.Profile.findOne({
+			where: { userId }
 		});
 	}
 };

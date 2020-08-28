@@ -7,6 +7,7 @@ type Query {
 		offset: Int
 		orderBy: String
 	): [Profile!]!
+	myProfile: Profile!
 	trip(query: String, limit: Int, offset: Int, orderBy: String): [Trip!]!
 	myTrips(query: String, limit: Int, offset: Int, orderBy: String): [Trip!]!
 	river(query: String, limit: Int, offset: Int, orderBy: String): [River!]!
