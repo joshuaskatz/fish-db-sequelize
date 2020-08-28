@@ -116,6 +116,7 @@ export const Query = {
 					{ email: { [Op.iLike]: `%${query}%` } }
 				]
 			},
+			include: [ models.Profile ],
 			limit,
 			offset,
 			order: [ [ 'name', orderBy ] ]
@@ -125,7 +126,8 @@ export const Query = {
 		const id = getUserId(request);
 
 		return models.User.findOne({
-			where: { id }
+			where: { id },
+			include: [ models.Profile ]
 		});
 	},
 	myProfile: async (_, __, { models, request }) => {
