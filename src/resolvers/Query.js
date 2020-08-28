@@ -124,6 +124,8 @@ export const Query = {
 	me: async (_, __, { models, request }) => {
 		const id = getUserId(request);
 
-		return models.User.findByPk(id);
+		return models.User.findOne({
+			where: { id }
+		});
 	}
 };
